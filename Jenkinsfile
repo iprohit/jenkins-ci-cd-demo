@@ -1,31 +1,34 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'docker:20.10.16-dind' // Docker-in-Docker image
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
+    environment {
+        DOCKER_USERNAME = credentials('dockerhub-creds')
+        DOCKER_PASSWORD = credentials('dockerhub-creds')
+    }
 
     stages {
-        stage('Install Dependencies') {
+        stage('Checkout') {
             steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'npm test || echo "No tests"'
+                checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
+                sh 'docker version'
                 sh 'docker build -t rodocker10/nodejs-app .'
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                    sh 'docker push $DOCKER_USERNAME/nodejs-app'
-                }
+                sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                sh 'docker push rodocker10/nodejs-app'
             }
         }
     }

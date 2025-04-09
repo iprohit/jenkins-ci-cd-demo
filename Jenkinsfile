@@ -2,7 +2,6 @@ pipeline {
     agent {
         dockerContainer {
             image 'node:16'
-            args '-p 5000:5000' // optional: if your app exposes port 5000
         }
     }
 

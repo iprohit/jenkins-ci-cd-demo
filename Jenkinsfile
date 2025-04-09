@@ -1,17 +1,12 @@
 pipeline {
     agent {
-        docker {
+        dockerContainer {
             image 'node:16'
+            args '-p 5000:5000' // optional: if your app exposes port 5000
         }
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'

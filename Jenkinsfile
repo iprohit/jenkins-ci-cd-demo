@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'docker:20.10.16-dind' // Docker-in-Docker image
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
         DOCKER_USERNAME = credentials('dockerhub-creds')
@@ -20,7 +15,6 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker version'
                 sh 'docker build -t rodocker10/nodejs-app .'
             }
         }
